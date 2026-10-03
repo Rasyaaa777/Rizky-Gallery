@@ -147,8 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookDots = document.querySelectorAll('.book-dot');
     const bookPrevBtn = document.getElementById('book-prev');
     const bookNextBtn = document.getElementById('book-next');
-    const menuTabBtns = document.querySelectorAll('.menu-tab-btn');
-    const frameCards = document.querySelectorAll('.frame-card');
 
     function renderBookPage(index) {
         if (!bookImg || !frameCatalogData[index]) return;
@@ -169,18 +167,20 @@ document.addEventListener('DOMContentLoaded', () => {
         bookCategory.textContent = data.categoryName;
         bookTitle.textContent = data.title;
         bookDesc.textContent = data.desc;
-        bookSpecWidth.textContent = data.width;
-        bookSpecFinish.textContent = data.finish;
-        bookSpecMaterial.textContent = data.material;
-        bookSpecBest.textContent = data.bestFor;
+        if (bookSpecWidth) bookSpecWidth.textContent = data.width;
+        if (bookSpecFinish) bookSpecFinish.textContent = data.finish;
+        if (bookSpecMaterial) bookSpecMaterial.textContent = data.material;
+        if (bookSpecBest) bookSpecBest.textContent = data.bestFor;
 
         // Render color chips
-        bookColorChips.innerHTML = data.colors.map(c => `
-            <span class="color-chip">
-                <span class="color-dot" style="background:${c.color}; ${c.border ? 'border:1px solid #ccc;' : ''}"></span>
-                ${c.name}
-            </span>
-        `).join('');
+        if (bookColorChips) {
+            bookColorChips.innerHTML = data.colors.map(c => `
+                <span class="color-chip">
+                    <span class="color-dot" style="background:${c.color}; ${c.border ? 'border:1px solid #ccc;' : ''}"></span>
+                    ${c.name}
+                </span>
+            `).join('');
+        }
 
         // WA button
         bookWaBtn.href = `https://wa.me/62895347207262?text=${encodeURIComponent(data.waMsg)}`;
@@ -209,46 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dot.addEventListener('click', () => {
             const idx = parseInt(dot.getAttribute('data-index'), 10);
             renderBookPage(idx);
-        });
-    });
-
-    // Menu Tab Category Filters
-    menuTabBtns.forEach(tab => {
-        tab.addEventListener('click', () => {
-            menuTabBtns.forEach(b => b.classList.remove('active'));
-            tab.classList.add('active');
-
-            const category = tab.getAttribute('data-category');
-            const targetFrameIndex = parseInt(tab.getAttribute('data-frame-index'), 10);
-
-            // Filter cards
-            frameCards.forEach(card => {
-                const cardCat = card.getAttribute('data-category');
-                if (category === 'all' || cardCat === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Update book page if not 'all'
-            if (category !== 'all' && !isNaN(targetFrameIndex)) {
-                renderBookPage(targetFrameIndex);
-            }
-        });
-    });
-
-    // "Buka di Buku" button on cards
-    document.querySelectorAll('.btn-open-book').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const idx = parseInt(btn.getAttribute('data-frame-index'), 10);
-            renderBookPage(idx);
-            const bookContainer = document.getElementById('menu-book');
-            if (bookContainer) {
-                const headerOffset = document.querySelector('.site-header').offsetHeight;
-                const offsetPosition = bookContainer.getBoundingClientRect().top + window.pageYOffset - headerOffset - 20;
-                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-            }
         });
     });
 
@@ -310,25 +270,4 @@ document.addEventListener('DOMContentLoaded', () => {
             openLightbox(currentData.image, currentData.title, `${currentData.categoryName} • ${currentData.finish}`);
         });
     }
-
-    // Grid card zoom buttons and images
-    document.querySelectorAll('.btn-card-zoom').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const card = btn.closest('.frame-card');
-            const img = card.querySelector('img');
-            const title = card.querySelector('h4').textContent;
-            const sub = card.querySelector('.frame-card-sub').textContent;
-            openLightbox(img.src, title, sub);
-        });
-    });
-
-    document.querySelectorAll('.frame-card-img-wrapper img').forEach(img => {
-        img.addEventListener('click', () => {
-            const card = img.closest('.frame-card');
-            const title = card.querySelector('h4').textContent;
-            const sub = card.querySelector('.frame-card-sub').textContent;
-            openLightbox(img.src, title, sub);
-        });
-    });
 });
